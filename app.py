@@ -4,6 +4,8 @@ import redis
 from models.models import *
 from create import create
 import mongoengine
+import json
+from models.models import *
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
@@ -31,9 +33,23 @@ def hello():
     # print(result)
     return f'MongoDB result: {result.to_json()}, Redis result: {redis_result}'
 
+@app.route("/api/createUser", methods=["GET"])
+def creator():
+    # new=UserEntity(Name="prithvi1",Status="Active")
+    # new.save()
+    a=UserEntity.objects.filter(ApiKey="bc308ac8e96c4ca4a9d6b541869e12d2")
+    return 
+    # return a.to_json()
 @app.route("/api/create", methods=["POST"])
-def create1():
-    return create(request.get_json(),request.headers.get('X-API-KEY'))
+def create(request,key):
+    User=UserEntity.objects.filter(ApiKey=key)
+    re=json.loads(request)[0] #{"key": value}
+    for i in re:
+        saver = ObjectEntity()
+        saver.save() 
+        #{"key" : Token}
+    #return request
+    return "fuck off" + str(request) + key
 
 if __name__ == '__main__':
     app.run(debug=True)

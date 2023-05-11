@@ -1,5 +1,5 @@
 from mongoengine import *
-
+import uuid 
 conn = connect('asd',host='localhost', port=27017, username='username', password='super-secret-password')
 
 '''
@@ -15,14 +15,14 @@ For Delete -> Document.objects(key=value).delete()
 
 class UserEntity(Document):
     Name = StringField(max_length=50)
-    TimeStamp = ComplexDateTimeField()
-    ApiKey = UUIDField()
+    ApiKey = UUIDField(required=True, default=uuid.uuid4())
     Status = StringField(max_length=10)
     meta = {'allow_inheritance': True}
 
 class ObjectEntity(Document):
     Uid = ReferenceField('UserEntity', reverse_delete_rule=CASCADE)
     Data = DictField()
+    Token = UUIDField(default=uuid.uuid4())
     TimeStamp = ComplexDateTimeField()
 
 class Config(Document):
