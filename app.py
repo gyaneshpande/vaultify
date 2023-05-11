@@ -75,7 +75,7 @@ def create():
             else:
                     saver=ObjectEntity()
                     saver.Uid=User
-                    saver.Data[re["Data"][i]['key']=re["Data"][i]['value']
+                    saver.Data[re["Data"][i]['key']]=re["Data"][i]['value']
                     saver.Token = generate_token(str({re["Data"][i]['key']:re["Data"][i]['value']})) 
                     re["Data"][i]['value']=saver.Token
                     saver.save()

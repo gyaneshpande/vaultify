@@ -12,4 +12,3 @@ def generate_token(input_str):
     # Return the token
 
     return unique_str
-
