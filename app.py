@@ -35,6 +35,7 @@ def hello():
     # MongoDB example
     # mongo_collection = mongo_db.my_collection
     result = UserEntity.objects()
+    results = ObjectEntity.objects()
     
     # Redis example
     redis_key = 'my_key'
@@ -42,7 +43,7 @@ def hello():
     redis_client.set(redis_key, redis_value)
     redis_result = redis_client.get(redis_key)
     # print(result)
-    return f'MongoDB result: {result.to_json()}, Redis result: {redis_result}'
+    return f'MongoDB result: {result.to_json()}, MongoDB result:<>asd {results.to_json()}, Redis result: {redis_result}'
 
 @app.route("/api/createUser", methods=["GET"])
 def creator():
@@ -61,13 +62,13 @@ def create():
         for i in range(len(re['Data'])):
             print(re["Data"][i].keys())
             if 'type' in re["Data"][i].keys():
-                if ((re["Data"][i]['type'] is not None) or (re["Data"][i]['type'] == 'presistant') or (re["Data"][i]['type'] == 'Presistant')):
+                if ((re["Data"][i]['type'] is not None) or (re["Data"][i]['type'] == 'persistant') or (re["Data"][i]['type'] == 'Persistant')):
                     saver=ObjectEntity()
                     saver.Uid=User
                     saver.Data['key']=re["Data"][i]['key']
                     saver.Data['value']=re["Data"][i]['value']
-                    saver.token = generate_token(saver.Data['value']) 
-                    re["Data"][i]['value']=saver.token
+                    saver.Token = generate_token(saver.Data['value']) 
+                    re["Data"][i]['value']=saver.Token
                     saver.save()
                 else:
                     test=generate_token(re["Data"][i]["value"]) 
@@ -78,8 +79,8 @@ def create():
                     saver.Uid=User
                     saver.Data['key']=re["Data"][i]['key']
                     saver.Data['value']=re["Data"][i]['value']
-                    saver.token = generate_token(saver.Data['value']) 
-                    re["Data"][i]['value']=saver.token
+                    saver.Token = generate_token(saver.Data['value']) 
+                    re["Data"][i]['value']=saver.Token
                     saver.save()
         return json.dumps(re)
     # for i in re:
