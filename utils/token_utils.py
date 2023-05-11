@@ -10,4 +10,5 @@ def generate_token(input_str):
     unique_str = unique_bytes.hex()[:16]
 
     # Return the token
+
     return unique_str
