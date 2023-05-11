@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, request
 from urllib.parse import quote
 import redis
+from pymongo import MongoClient
 from models.models import *
-from create import create
+from utils.token_utils import *
+# from create import create
 import mongoengine
 import json
 from models.models import *
@@ -11,14 +13,23 @@ app = Flask(__name__)
 app.config.from_pyfile('config.py')
 
 # MongoDB setup
-# client = MongoClient('localhost', 27017, username='username', password='super-secret-password')
-# mongo_db = client.mydatabase
+client = MongoClient('localhost', 27017, username='username', password='super-secret-password')
+mongo_db = client.mydatabase
 # Redis setup
 password = 'yourpassword'
 encoded_password = quote(password, safe="")
 redis_client = redis.Redis.from_url('redis://:{}@localhost:6379/0'.format(encoded_password))
 # a=UserEntity(Name="asdasd")
 # a.save()
+
+def authenticateApi(ApiKey):
+    User_collection=mongo_db['UserEntity']
+    User=User_collection.find_one(ApiKey)
+    if User is not None:
+        return True
+    else:
+        return False
+    
 @app.route('/')
 def hello():
     # MongoDB example
@@ -35,21 +46,47 @@ def hello():
 
 @app.route("/api/createUser", methods=["GET"])
 def creator():
-    # new=UserEntity(Name="prithvi1",Status="Active")
-    # new.save()
-    a=UserEntity.objects.filter(ApiKey="bc308ac8e96c4ca4a9d6b541869e12d2")
+    new=UserEntity(Name="prithvi1",Status="Active")
+    new.save()
+    # a=UserEntity.objects.filter(ApiKey="bc308ac8e96c4ca4a9d6b541869e12d2")
     return 
     # return a.to_json()
 @app.route("/api/create", methods=["POST"])
-def create(request,key):
-    User=UserEntity.objects.filter(ApiKey=key)
-    re=json.loads(request)[0] #{"key": value}
-    for i in re:
-        saver = ObjectEntity()
-        saver.save() 
+def create():
+        User_collection=mongo_db['UserEntity']
+        User=User_collection.find_one(request.headers.get('X-API-KEY'))
+        re=request.get_json()
+        print(re)
+        # print(len(re['Data']))
+        for i in range(len(re['Data'])):
+            print(re["Data"][i].keys())
+            if 'type' in re["Data"][i].keys():
+                if ((re["Data"][i]['type'] is not None) or (re["Data"][i]['type'] == 'presistant') or (re["Data"][i]['type'] == 'Presistant')):
+                    saver=ObjectEntity()
+                    saver.Uid=User
+                    saver.Data['key']=re["Data"][i]['key']
+                    saver.Data['value']=re["Data"][i]['value']
+                    saver.token = generate_token(saver.Data['value']) 
+                    re["Data"][i]['value']=saver.token
+                    saver.save()
+                else:
+                    test=generate_token(re["Data"][i]["value"]) 
+                    redis_client.hset(User["_id"], generate_token(re["Data"][i]["value"]) , re["Data"][i]["key"]+"#"+re["Data"][i]["value"])
+                    re["Data"][i]['value']=test
+            else:
+                    saver=ObjectEntity()
+                    saver.Uid=User
+                    saver.Data['key']=re["Data"][i]['key']
+                    saver.Data['value']=re["Data"][i]['value']
+                    saver.token = generate_token(saver.Data['value']) 
+                    re["Data"][i]['value']=saver.token
+                    saver.save()
+        return json.dumps(re)
+    # for i in re:
+        # saver = ObjectEntity()
+        # saver.save() 
         #{"key" : Token}
     #return request
-    return "fuck off" + str(request) + key
 
 if __name__ == '__main__':
     app.run(debug=True)

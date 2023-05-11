@@ -22,8 +22,7 @@ class UserEntity(Document):
 class ObjectEntity(Document):
     Uid = ReferenceField('UserEntity', reverse_delete_rule=CASCADE)
     Data = DictField()
-    Token = UUIDField(default=uuid.uuid4())
-    TimeStamp = ComplexDateTimeField()
+    Token = StringField(max_length=50)
 
 class Config(Document):
     Uid = ReferenceField('UserEntity', reverse_delete_rule=CASCADE)
