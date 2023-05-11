@@ -65,8 +65,8 @@ def create():
                     saver=ObjectEntity()
                     saver.Uid=User
                     saver.Data[re["Data"][i]['key']]=saver.Data['value']=re["Data"][i]['value']
-                    saver.token = generate_token(str({re["Data"][i]['key']:re["Data"][i]['value']})) 
-                    re["Data"][i]['value']=saver.token
+                    saver.Token = generate_token(str({re["Data"][i]['key']:re["Data"][i]['value']})) 
+                    re["Data"][i]['value']=saver.Token
                     saver.save()
                 else:
                     test=generate_token(re["Data"][i]["value"]) 
@@ -75,10 +75,9 @@ def create():
             else:
                     saver=ObjectEntity()
                     saver.Uid=User
-                    saver.Data['key']=re["Data"][i]['key']
-                    saver.Data['value']=re["Data"][i]['value']
-                    saver.token = generate_token(saver.Data['value']) 
-                    re["Data"][i]['value']=saver.token
+                    saver.Data[re["Data"][i]['key']]=saver.Data['value']=re["Data"][i]['value']
+                    saver.Token = generate_token(str({re["Data"][i]['key']:re["Data"][i]['value']})) 
+                    re["Data"][i]['value']=saver.Token
                     saver.save()
         return json.dumps(re)
     else:
