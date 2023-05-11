@@ -7,6 +7,7 @@ from utils.token_utils import *
 # from create import create
 import mongoengine
 import json
+import re
 from models.models import *
 
 app = Flask(__name__)
@@ -22,15 +23,28 @@ redis_client = redis.Redis.from_url('redis://:{}@localhost:6379/0'.format(encode
 a=UserEntity(Name="sathya")
 a.save()
 
+def sanitize_input(input_string):
+    # Remove non-alphanumeric characters except for whitespace
+    if(input_string is None):
+        return None
+    sanitized_string = re.sub(r'[^a-zA-Z0-9\s]', '', input_string)
+    print(sanitized_string)
+    return sanitized_string.strip()
+
 def authenticateApi(Apikey):
     try:
         if Apikey is None:
             return None
-        User=UserEntity.objects.filter(ApiKey=Apikey)[0]
+        sanitizedKey=sanitize_input(Apikey)
+        print(sanitizedKey)
+        User=UserEntity.objects.filter(ApiKey=sanitizedKey)[0]
+        
         print(dir(User))
         return User
     except:
+        print('its here')
         return None
+
     
 @app.route('/')
 def hello():
@@ -46,6 +60,7 @@ def hello():
     print(result)
     return f'MongoDB result: {result.to_json()}, Redis result: {redis_result}'
 
+
 @app.route("/api/createUser", methods=["Get"])
 def creator():
     new=UserEntity(Name="prithvi1",Status="Active")
@@ -58,6 +73,7 @@ def create():
     User=authenticateApi(request.headers.get('X-API-KEY'))
     if User:
         re=request.get_json()
+
         print(re)
         # print(len(re['Data']))
         for i in range(len(re['Data'])):
