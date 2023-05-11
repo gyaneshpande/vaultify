@@ -19,11 +19,13 @@ mongo_db = client.mydatabase
 password = 'yourpassword'
 encoded_password = quote(password, safe="")
 redis_client = redis.Redis.from_url('redis://:{}@localhost:6379/0'.format(encoded_password))
-# a=UserEntity(Name="asdasd")
-# a.save()
+a=UserEntity(Name="sathya")
+a.save()
 
 def authenticateApi(Apikey):
     try:
+        if Apikey is None:
+            return None
         User=UserEntity.objects.filter(ApiKey=Apikey)[0]
         print(dir(User))
         return User
@@ -34,17 +36,17 @@ def authenticateApi(Apikey):
 def hello():
     # MongoDB example
     # mongo_collection = mongo_db.my_collection
-    result = UserEntity.objects()
+    result = UserEntity.objects().filter(Name="sathya")
     
     # Redis example
     redis_key = 'my_key'
     redis_value = 'my_value'
     redis_client.set(redis_key, redis_value)
     redis_result = redis_client.get(redis_key)
-    # print(result)
+    print(result)
     return f'MongoDB result: {result.to_json()}, Redis result: {redis_result}'
 
-@app.route("/api/createUser", methods=["POST"])
+@app.route("/api/createUser", methods=["Get"])
 def creator():
     new=UserEntity(Name="prithvi1",Status="Active")
     new.save()
