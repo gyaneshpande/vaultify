@@ -28,10 +28,7 @@ redis_client = redis.Redis.from_url('redis://:{}@localhost:6379/0'.format(encode
 # a=UserEntity(Name="asdasd")
 # a.save()
 mongo_collection = mongo_client.my_collection
-@app.route('/')
-def hello():
-    # MongoDB example
-    result = UserEntity.objects()
+
 
 a=UserEntity(Name="sathya")
 a.save()
@@ -136,7 +133,7 @@ def getData():
     # print(type(res['_id']))
     return str((res['_id']))
 
-@app.route("/api/createUser", methods=["Get"])
+@app.route("/api/createUser", methods=['GET'])
 def creator():
     new=UserEntity(Name="prithvi1",Status="Active")
     new.save()
