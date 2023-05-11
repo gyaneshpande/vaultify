@@ -64,9 +64,8 @@ def create():
                 if ((re["Data"][i]['type'] is not None) or (re["Data"][i]['type'] == 'presistant') or (re["Data"][i]['type'] == 'Presistant')):
                     saver=ObjectEntity()
                     saver.Uid=User
-                    saver.Data['key']=re["Data"][i]['key']
-                    saver.Data['value']=re["Data"][i]['value']
-                    saver.token = generate_token(saver.Data['value']) 
+                    saver.Data[re["Data"][i]['key']]=saver.Data['value']=re["Data"][i]['value']
+                    saver.token = generate_token(str({re["Data"][i]['key']:re["Data"][i]['value']})) 
                     re["Data"][i]['value']=saver.token
                     saver.save()
                 else:
