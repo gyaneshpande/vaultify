@@ -64,18 +64,18 @@ def create():
                 if ((re["Data"][i]['type'] is not None) or (re["Data"][i]['type'] == 'presistant') or (re["Data"][i]['type'] == 'Presistant')):
                     saver=ObjectEntity()
                     saver.Uid=User
-                    saver.Data[re["Data"][i]['key']]=saver.Data['value']=re["Data"][i]['value']
+                    saver.Data[re["Data"][i]['key']]=re["Data"][i]['value']
                     saver.Token = generate_token(str({re["Data"][i]['key']:re["Data"][i]['value']})) 
                     re["Data"][i]['value']=saver.Token
                     saver.save()
                 else:
                     test=generate_token(re["Data"][i]["value"]) 
-                    redis_client.hset(User["_id"], generate_token(re["Data"][i]["value"]) , re["Data"][i]["key"]+"#"+re["Data"][i]["value"])
+                    redis_client.hset(User["_id"], test , re["Data"][i]["key"]+"#"+re["Data"][i]["value"])
                     re["Data"][i]['value']=test
             else:
                     saver=ObjectEntity()
                     saver.Uid=User
-                    saver.Data[re["Data"][i]['key']]=saver.Data['value']=re["Data"][i]['value']
+                    saver.Data[re["Data"][i]['key']=re["Data"][i]['value']
                     saver.Token = generate_token(str({re["Data"][i]['key']:re["Data"][i]['value']})) 
                     re["Data"][i]['value']=saver.Token
                     saver.save()
