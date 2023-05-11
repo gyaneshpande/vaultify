@@ -1,7 +1,8 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from urllib.parse import quote
 import redis
 from models.models import *
+from create import create
 import mongoengine
 
 app = Flask(__name__)
@@ -29,6 +30,10 @@ def hello():
     redis_result = redis_client.get(redis_key)
     # print(result)
     return f'MongoDB result: {result.to_json()}, Redis result: {redis_result}'
+
+@app.route("/api/create", methods=["POST"])
+def create1():
+    return create(request.get_json(),request.headers.get('X-API-KEY'))
 
 if __name__ == '__main__':
     app.run(debug=True)
