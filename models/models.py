@@ -15,7 +15,7 @@ For Delete -> Document.objects(key=value).delete()
 
 class UserEntity(Document):
     Name = StringField(max_length=50)
-    ApiKey = UUIDField(required=True, default=uuid.uuid4())
+    ApiKey = StringField(required=50, default=uuid.uuid4())
     Status = StringField(max_length=10)
     meta = {'allow_inheritance': True}
 
