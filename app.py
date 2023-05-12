@@ -49,7 +49,7 @@ def authenticateApi(Apikey):
         print(sanitizedKey)
         User=UserEntity.objects.filter(ApiKey=sanitizedKey)[0]
         
-        print(dir(User))
+        # print(dir(User))
         return User
     except:
         print('its here')
@@ -133,12 +133,15 @@ def getData():
     # print(type(res['_id']))
     return str((res['_id']))
 
-@app.route("/api/createUser", methods=['GET'])
+@app.route("/api/user/create", methods=['POST'])
 def creator():
-    new=UserEntity(Name="prithvi1",Status="Active")
+    re=request.get_json()
+
+    new=UserEntity(Name=re["Name"],Status=re["Status"])
     new.save()
+    print(new)
     # a=UserEntity.objects.filter(ApiKey="bc308ac8e96c4ca4a9d6b541869e12d2")
-    return 200
+    return new.to_json(),200
     # return a.to_json()
 @app.route("/api/create", methods=["POST"])
 def create():
@@ -178,5 +181,41 @@ def create():
         #{"key" : Token}
     #return request
 
+
+@app.route("/api/rules/create", methods=["POST"])
+def Rcreate():
+    User=authenticateApi(request.headers.get('X-API-KEY'))
+    if User:
+        re=request.get_json()
+        print(re)
+        saver=Config()
+        saver.Uid=User
+        # print(list(re.keys())[0])
+        saver.Rules=re
+        saver.save()
+        return "done",200
+    else:
+        return "fuck off",401
+
+@app.route("/api/rules/update", methods=["POST"])
+def Rupdate():
+    User=authenticateApi(request.headers.get('X-API-KEY'))
+    if User:
+        re=request.get_json()
+        print(re)
+        saver=Config.objects.filter(Uid=User)
+        saver.Rules=re
+        return "done",200
+    else:
+        return "fuck off",401
+    
+@app.route("/api/rules/retrieve", methods=["GET"])
+def retrieve():
+    User=authenticateApi(request.headers.get('X-API-KEY'))
+    if User:
+        type=request.args.get("type")
+        config=Config.objects.filter(Uid=User,)
+    else:
+        return "fuck off",401
 if __name__ == '__main__':
     app.run(debug=True)
