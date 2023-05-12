@@ -1,0 +1,24 @@
+from flask import Flask
+from models.models import *
+app = Flask(__name__)
+import app
+
+
+@app.get('/programming_languages')
+def list_programming_languages():
+   return {"programming_languages":list(UserEntity(Name="asdasd"))}
+    
+
+
+
+# Get Endpoint
+# The request will be of the type /api/get_value?tokens=t1,t2,t3?masking=true
+# First call the authentication function which will return the user id if valid
+# Use the recevied company id in all subsequent queries to the DB [IMPORTANT]
+# Check for the args -> if masking is true
+   # Then Get the masking config from the config table 
+# For each token received in the args perform the following
+   #  get the corresponding row from object table using token and user id
+   #  Check if the key is present in the masking config for the user if yes 
+      # Call the masking function 
+   # Return the data as is   
