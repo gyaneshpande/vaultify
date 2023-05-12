@@ -6,7 +6,6 @@ from models.models import *
 from mongoengine import Q 
 from utils.token_utils import *
 from utils.masking_utils import mask_string
-# from create import create
 import uuid
 import mongoengine
 from pymongo import MongoClient
@@ -63,7 +62,7 @@ def authenticateApi(Apikey):
 def hello():
     # MongoDB example
     # mongo_collection = mongo_db.my_collection
-    result = UserEntity.objects().filter(Name="sathya")
+    result = UserEntity.objects()
     
     # Redis example
     redis_key = 'my_key'
@@ -98,18 +97,11 @@ def retrieve_data():
             # print(type(object_id))
             # print(object_id)
             if "#" not in object_id.decode('utf-8'):
-                # token_res = object_collection.find_one({'_id': object_id, 'Uid': user_id})
-                # print(bson.ObjectId(object_id))
-                # bson_id = bson.ObjectId(object_id)
-                # print(bson_id)
                 try:
                     token_res=ObjectEntity.objects(Uid=user_id,id=object_id.decode('utf-8')).first()
-                    # token_dict=token_res['Data']
                     token_dict = {}
                     token_dict['key'] = list(token_res['Data'].keys())[0]
                     token_dict['value'] = list(token_res['Data'].values())[0]
-                    # print(dir(token_res['Data']))
-                    # print(list(token_res['Data'].keys())[0])
                     # print(list(token_res['Data'].values())[0])
                     token_dict['created_at']=token_res['id'].generation_time
                     res_dict[token]=token_dict
@@ -129,7 +121,6 @@ def retrieve_data():
                 ret_key, ret_value = object_id.decode('utf-8').split('#')
                 # {key: ret_key, value: ret_val}
                 res_dict[object_id]={"key": ret_key, "value": ret_value}
-            # response.append(token_res['data'])
             # Apply masking here
             # res_dict[object_id]["value"] = masking(res_dict[object_id]["value"])
             # response.append(res_dict)
@@ -202,7 +193,6 @@ def creator():
     new=UserEntity(Name=re["Name"],Status=re["Status"],ApiKey=uuid.uuid4())
     new.save()
     print(new)
-    # a=UserEntity.objects.filter(ApiKey="bc308ac8e96c4ca4a9d6b541869e12d2")
     return new.to_json(),200
     # return a.to_json()
 @app.route("/api/create", methods=["POST"])
