@@ -1,4 +1,4 @@
-def mask_string(input_string, mask_status):
+def mask_string(input_string, mask_status = 'normal'):
    
 
     # Check input parameter
@@ -68,4 +68,5 @@ def mask_string(input_string, mask_status):
     return masked_string 
       
 
-mask_string('rajesham','redacted')
+# print(mask_string('rajesham','redacted'))
+# print(mask_string("asaawefweaa", 'masked'))

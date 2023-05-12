@@ -4,6 +4,7 @@ import redis
 from pymongo import MongoClient
 from models.models import *
 from utils.token_utils import *
+from utils.masking_utils import mask_string
 # from create import create
 import mongoengine
 from pymongo import MongoClient
@@ -101,9 +102,18 @@ def retrieve_data():
                 # print(bson_id)
                 try:
                     token_res=ObjectEntity.objects(Uid=user_id,id=object_id.decode('utf-8')).first()
-                    token_dict=token_res['Data']
+                    # token_dict=token_res['Data']
+                    token_dict = {}
+                    token_dict['key'] = list(token_res['Data'].keys())[0]
+                    token_dict['value'] = list(token_res['Data'].values())[0]
+                    # print(dir(token_res['Data']))
+                    # print(list(token_res['Data'].keys())[0])
+                    # print(list(token_res['Data'].values())[0])
                     token_dict['created_at']=token_res['id'].generation_time
                     res_dict[token]=token_dict
+                    masking_type= mask_type(user_id, token_dict['key'])
+                    print(masking_type)
+                    token_dict['value']=mask_string(str(token_dict['value']), masking_type)
                 except DoesNotExist:
                     # Handle DoesNotExist error here
                     print("Object not found")
@@ -127,18 +137,22 @@ def retrieve_data():
             # token_res1=object_collection.find_one({'Token': token,'Uid': user_id})
             try:
                 token_res1=ObjectEntity.objects(Token=token,Uid=user_id).first()
-                print(token_res1["Data"])
+                # print(token_res1["Data"])
                 # for i in token_res1:
                 #     print(i)
-                print(dir(token_res1))
-                print(token_res1['id'])
-                token_dict1=token_res1['Data']
+                # print(dir(token_res1))
+                # print(token_res1['id'])
+                token_dict1 = {}
+                token_dict1['key'] = list(token_res1['Data'].keys())[0]
+                token_dict1['value'] = list(token_res1['Data'].values())[0]
                 print(token_res1['id'].generation_time)
                 token_dict1['created_at']=token_res1['id'].generation_time
                 # print(token_res1["_id"])
                 res_dict[token]=token_dict1
                 # Apply masking
                 # add record to redis
+                masking_type= mask_type(user_id, token_dict1['key'])
+                token_dict1['value']=mask_string(str(token_dict1['value']), masking_type)
                 redis_client.hset(str(user_id), token, str(token_res1['id']))
             except DoesNotExist:
                 # Handle DoesNotExist error here
@@ -154,10 +168,12 @@ def retrieve_data():
 def mask_type(user_id, key):
     config_collection = mongo_client['Config']
     mask_rules = config_collection.find_one({"Uid": user_id})
-    for rules in mask_rules:
-        rule_values = mask_rules[rules]
-        if key in rule_values:
-            return rules
+    if mask_rules is not None:
+        for rules in mask_rules:
+            rule_values = mask_rules[rules]
+            if key in rule_values:
+                return rules
+        return "normal"
     return "normal"
 
 
