@@ -3,6 +3,7 @@ from urllib.parse import quote
 import redis
 from pymongo import MongoClient
 from models.models import *
+from mongoengine import Q 
 from utils.token_utils import *
 from utils.masking_utils import mask_string
 # from create import create
@@ -239,6 +240,23 @@ def create():
     #return request
 
 
+@app.route("/api/delete", methods=["POST"])
+def delete():
+    User=authenticateApi(request.headers.get('X-API-KEY'))
+    if User:
+        re=request.get_json()
+        for i in range(len(re['Data'])):
+            Object=ObjectEntity.objects(Q(Uid=User) & Q(Token=re["Data"][i]['value']))
+            try:
+                redis_client.delete(re["Data"][i]['value'])
+                Object.delete()
+            except:
+                return 500
+    return "Done" , 204
+
+# @app.route("/api/update", methods=["POST"])
+# def update():
+#     return 204
 @app.route("/api/rules/create", methods=["POST"])
 def Rcreate():
     User=authenticateApi(request.headers.get('X-API-KEY'))
