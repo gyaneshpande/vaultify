@@ -1,5 +1,4 @@
 from mongoengine import *
-import uuid 
 conn = connect('asd',host='localhost', port=27017, username='username', password='super-secret-password')
 
 '''
@@ -15,7 +14,7 @@ For Delete -> Document.objects(key=value).delete()
 
 class UserEntity(Document):
     Name = StringField(max_length=50)
-    ApiKey = UUIDField(required=50, default=str(uuid.uuid4()))
+    ApiKey = UUIDField()
     Status = StringField(max_length=10)
     meta = {'allow_inheritance': True}
 

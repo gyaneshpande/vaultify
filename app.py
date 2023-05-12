@@ -7,6 +7,7 @@ from mongoengine import Q
 from utils.token_utils import *
 from utils.masking_utils import mask_string
 # from create import create
+import uuid
 import mongoengine
 from pymongo import MongoClient
 import bson
@@ -198,7 +199,7 @@ def getData():
 def creator():
     re=request.get_json()
 
-    new=UserEntity(Name=re["Name"],Status=re["Status"])
+    new=UserEntity(Name=re["Name"],Status=re["Status"],ApiKey=uuid.uuid4())
     new.save()
     print(new)
     # a=UserEntity.objects.filter(ApiKey="bc308ac8e96c4ca4a9d6b541869e12d2")
