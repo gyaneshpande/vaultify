@@ -289,7 +289,9 @@ def retrieve():
     User=authenticateApi(request.headers.get('X-API-KEY'))
     if User:
         type=request.args.get("type")
-        config=Config.objects.filter(Uid=User,)
+        config=Config.objects(Uid=User).first()
+        print(config.Rules)
+        return config.Rules[type]
     else:
         return "fuck off",401
 if __name__ == '__main__':
