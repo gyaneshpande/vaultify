@@ -84,7 +84,7 @@ def retrieve_data():
     token_values = request.args.get('token')
     token_array = token_values.split(',')
     # print(token_array)
-    masking = request.args.get('masking')
+    # masking = request.args.get('masking')
     object_collection = mongo_client['ObjectEntity']
     response = []
     #if in redis response the data
@@ -167,11 +167,14 @@ def retrieve_data():
     return {"data": response}
 
 def mask_type(user_id, key):
-    config_collection = mongo_client['Config']
-    mask_rules = config_collection.find_one({"Uid": user_id})
-    if mask_rules is not None:
-        for rules in mask_rules:
-            rule_values = mask_rules[rules]
+    # config_collection = mongo_client['Config']
+    # mask_rules = config_collection.find_one({"Uid": user_id})
+    mask_rules = Config.objects(Uid=user_id).first()
+    print(mask_rules['Rules'])
+    if mask_rules['Rules'] is not None:
+        for rules in mask_rules['Rules']['MaskedKeys']:
+            rule_values = mask_rules['Rules']['MaskedKeys'][rules]
+            print(rule_values)
             if key in rule_values:
                 return rules
         return "normal"
