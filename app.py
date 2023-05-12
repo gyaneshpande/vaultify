@@ -49,7 +49,7 @@ def authenticateApi(Apikey):
             return None
         sanitizedKey=sanitize_input(Apikey)
         print(sanitizedKey)
-        User=UserEntity.objects.filter(ApiKey=sanitizedKey)[0]
+        User=UserEntity.objects.filter(ApiKey=sanitizedKey).filter(Status="Active")[0]
         
         # print(dir(User))
         return User
@@ -278,8 +278,9 @@ def Rupdate():
     if User:
         re=request.get_json()
         print(re)
-        saver=Config.objects.filter(Uid=User)
+        saver=Config.objects.filter(Uid=User).first()
         saver.Rules=re
+        saver.save()
         return "done",200
     else:
         return "fuck off",401
@@ -289,7 +290,12 @@ def retrieve():
     User=authenticateApi(request.headers.get('X-API-KEY'))
     if User:
         type=request.args.get("type")
-        config=Config.objects.filter(Uid=User,)
+        config=Config.objects(Uid=User).first()
+        print(config.Rules)
+        try:
+            return config.Rules[type]
+        except KeyError:
+            return "some error occured",404
     else:
         return "fuck off",401
 if __name__ == '__main__':
