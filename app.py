@@ -238,7 +238,7 @@ def create():
                     saver.save()
         return json.dumps(re)
     else:
-        return "fuck off", 401
+        return "Improper Authentication", 401
     # for i in re:
         # saver = ObjectEntity()
         # saver.save() 
@@ -276,7 +276,7 @@ def Rcreate():
         saver.save()
         return "done",200
     else:
-        return "fuck off",401
+        return "Improper Authentication",401
 
 @app.route("/api/rules/update", methods=["POST"])
 def Rupdate():
@@ -289,7 +289,7 @@ def Rupdate():
         saver.save()
         return "done",200
     else:
-        return "fuck off",401
+        return "Improper Authentication",401
     
 @app.route("/api/rules/retrieve", methods=["GET"])
 def retrieve():
@@ -303,6 +303,6 @@ def retrieve():
         except KeyError:
             return "some error occured",404
     else:
-        return "fuck off",401
+        return "Improper Authentication",401
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
