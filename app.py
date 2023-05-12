@@ -226,6 +226,8 @@ def create():
                 else:
                     test=generate_token(re["Data"][i]["value"]) 
                     redis_client.hset(User["_id"], test , re["Data"][i]["key"]+"#"+re["Data"][i]["value"])
+                    if redis_client.hget(User["_id"],test)==re["Data"][i]["key"]+"#"+re["Data"][i]["value"]:
+                        redis_client.expire(User["_id"],60)
                     re["Data"][i]['value']=test
             else:
                     saver=ObjectEntity()
