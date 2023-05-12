@@ -70,45 +70,86 @@ def hello():
     print(result)
     return f'MongoDB result: {result.to_json()}, Redis result: {redis_result}'
 
-@app.route('/api/retrieve', methods=['GET'])
+@app.route('/api/retrieve/', methods=["GET"])
 def retrieve_data():
     # call check auth function which will return user id user_id = funciton for authentication
-    user_id= None
+    print("Inside get endpoint")
+    User=authenticateApi(request.headers.get('X-API-KEY'))
+    print(User.id)
+    user_id= User.id
+    # print("user id is ")
+    # print(user_id)
     token_values = request.args.get('token')
     token_array = token_values.split(',')
+    # print(token_array)
     masking = request.args.get('masking')
     object_collection = mongo_client['ObjectEntity']
     response = []
     #if in redis response the data
     for token in token_array:
-        res_dict={}
-        object_id = redis_client.hget(user_id, token)
+        res_dict=dict()
+        object_id = redis_client.hget(str(user_id), token)
         if object_id:
+            print("Value present in Redis ---------------")
             # If record exists in redis
-            if isinstance(object_id, bson.ObjectId):
-                token_res = object_collection.find_one({'_id': object_id, 'Uid': user_id})
-                token_dict=token_res['data']
-                token_dict['created_at']=token_res['_id'].generation_time
-                res_dict[token]=token_dict
+            # print(type(object_id))
+            # print(object_id)
+            if "#" not in object_id.decode('utf-8'):
+                # token_res = object_collection.find_one({'_id': object_id, 'Uid': user_id})
+                # print(bson.ObjectId(object_id))
+                # bson_id = bson.ObjectId(object_id)
+                # print(bson_id)
+                try:
+                    token_res=ObjectEntity.objects(Uid=user_id,id=object_id.decode('utf-8')).first()
+                    token_dict=token_res['Data']
+                    token_dict['created_at']=token_res['id'].generation_time
+                    res_dict[token]=token_dict
+                except DoesNotExist:
+                    # Handle DoesNotExist error here
+                    print("Object not found")
+                except Exception as e:
+                    # Handle other exceptions here
+                    print("An error occurred:", str(e))
             else:
                 # Volatile type
                 # {name: rishabh} -> "name#rishabh"
-                ret_key, ret_value = object_id.split('#')
+                print("Volatile")
+                ret_key, ret_value = object_id.decode('utf-8').split('#')
                 # {key: ret_key, value: ret_val}
                 res_dict[object_id]={"key": ret_key, "value": ret_value}
             # response.append(token_res['data'])
             # Apply masking here
             # res_dict[object_id]["value"] = masking(res_dict[object_id]["value"])
-            response.append(res_dict)
+            # response.append(res_dict)
         else:
+            print("Value NOT present in Redis ---------------")
             # Record not found in redis
-            token_res=object_collection.find_one({"Token": token,'Uid': user_id})
-            token_dict=token_res['data']
-            token_dict['created_at']=token_res['_id'].generation_time
-            res_dict[token]=token_dict
-            # Apply masking
-            # add record to redis
-            redis_client.hset(user_id, token, token_res['_id'])
+            # token_res1=object_collection.find_one({'Token': token,'Uid': user_id})
+            try:
+                token_res1=ObjectEntity.objects(Token=token,Uid=user_id).first()
+                print(token_res1["Data"])
+                # for i in token_res1:
+                #     print(i)
+                print(dir(token_res1))
+                print(token_res1['id'])
+                token_dict1=token_res1['Data']
+                print(token_res1['id'].generation_time)
+                token_dict1['created_at']=token_res1['id'].generation_time
+                # print(token_res1["_id"])
+                res_dict[token]=token_dict1
+                # Apply masking
+                # add record to redis
+                redis_client.hset(str(user_id), token, str(token_res1['id']))
+            except DoesNotExist:
+                # Handle DoesNotExist error here
+                print("Object not found")
+            except Exception as e:
+                # Handle other exceptions here
+                print("An error occurred:", str(e))
+        if bool(res_dict):
+            response.append(res_dict)
+    
+    return {"data": response}
 
 def mask_type(user_id, key):
     config_collection = mongo_client['Config']
